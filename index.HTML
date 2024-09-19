@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            max-width: 1000px;
+            width: 90%;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .input-container {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+        input[type="text"], input[type="date"], select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.3);
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .lists-container {
+            display: flex;
+            gap: 30px;
+        }
+        .task-list-container, .members-container {
+            flex: 1;
+            background-color: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        li.completed {
+            text-decoration: line-through;
+            color: #a0aec0;
+            background-color: #f0f0f0;
+        }
+        .delete-btn, .complete-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .delete-btn {
+            background-color: #fc8181;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #f56565;
+        }
+        .complete-btn {
+            background-color: #68d391;
+            color: white;
+        }
+        .complete-btn:hover {
+            background-color: #48bb78;
+        }
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: #edf2f7;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .member-item:hover {
+            background-color: #e2e8f0;
+        }
+        .task-count {
+            background-color: #667eea;
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .task-details {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .task-meta {
+            font-size: 0.9em;
+            color: #718096;
+        }
+        .priority-high {
+            border-left: 4px solid #f56565;
+        }
+        .priority-medium {
+            border-left: 4px solid #f6e05e;
+        }
+        .priority-low {
+            border-left: 4px solid #68d391;
+        }
+        @media (max-width: 768px) {
+            .lists-container {
+                flex-direction: column;
+            }
+            .container {
+                padding: 20px;
+            }
+            .input-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To-Do List</h1>
+        <div class="input-container">
+            <input type="text" id="taskInput" placeholder="Enter a new task" aria-label="New task">
+            <input type="text" id="assigneeInput" placeholder="Assign to" aria-label="Assignee">
+            <input type="date" id="dueDateInput" aria-label="Due date">
+            <select id="priorityInput" aria-label="Priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+            <button id="addTask">Add Task</button>
+        </div>
+        <div class="lists-container">
+            <div class="task-list-container">
+                <h2>Tasks</h2>
+                <ul id="taskList"></ul>
+            </div>
+            <div class="members-container">
+                <h2>Team Members</h2>
+                <ul id="membersList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const taskInput = document.getElementById('taskInput');
+        const assigneeInput = document.getElementById('assigneeInput');
+        const dueDateInput = document.getElementById('dueDateInput');
+        const priorityInput = document.getElementById('priorityInput');
+        const addTaskButton = document.getElementById('addTask');
+        const taskList = document.getElementById('taskList');
+        const membersList = document.getElementById('membersList');
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function renderTasks() {
+            taskList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.className = task.completed ? 'completed' : '';
+                li.classList.add(`priority-${task.priority}`);
+                li.innerHTML = `
+                    <div class="task-details">
+                        <span>${task.text}</span>
+                        <span class="task-meta">Assigned to: ${task.assignee} | Due: ${task.dueDate} | Priority: ${task.priority}</span>
+                    </div>
+                    <div>
+                        <button class="complete-btn">${task.completed ? 'Undo' : 'Complete'}</button>
+                        <button class="delete-btn">Delete</button>
+                    </div>
+                `;
+
+                const completeBtn = li.querySelector('.complete-btn');
+                completeBtn.addEventListener('click', () => {
+                    task.completed = !task.completed;
+                    saveTasks();
+                    renderTasks();
+                });
+
+                const deleteBtn = li.querySelector('.delete-btn');
+                deleteBtn.addEventListener('click', () => {
+                    tasks.splice(index, 1);
+                    saveTasks();
+                    renderTasks();
+                });
+
+                taskList.appendChild(li);
+            });
+        }
+
+        function renderMembers() {
+            const members = {};
+            tasks.forEach((task) => {
+                members[task.assignee] = (members[task.assignee] || 0) + 1;
+            });
+
+            membersList.innerHTML = '';
+            Object.entries(members).sort((a, b) => b[1] - a[1]).forEach(([member, count]) => {
+                const li = document.createElement('li');
+                li.className = 'member-item';
+                li.innerHTML = `
+                    <span>${member}</span>
+                    <span class="task-count">${count} task${count !== 1 ? 's' : ''}</span>
+                `;
+                membersList.appendChild(li);
+            });
+        }
+
+        function renderAll() {
+            renderTasks();
+            renderMembers();
+        }
+
+        addTaskButton.addEventListener('click', () => {
+            const text = taskInput.value.trim();
+            const assignee = assigneeInput.value.trim();
+            const dueDate = dueDateInput.value;
+            const priority = priorityInput.value;
+            if (text !== '' && assignee !== '' && dueDate !== '') {
+                tasks.push({ text, assignee, dueDate, priority, completed: false });
+                saveTasks();
+                renderAll();
+                taskInput.value = '';
+                assigneeInput.value = '';
+                dueDateInput.value = '';
+                priorityInput.value = 'low';
+            }
+        });
+
+        renderAll();
+
+        // Add keyboard event listeners for better accessibility
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                assigneeInput.focus();
+            }
+        });
+
+        assigneeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                dueDateInput.focus();
+            }
+        });
+
+        dueDateInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                priorityInput.focus();
+            }
+        });
+
+        priorityInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTaskButton.click();
+            }
+        });
+
+        // Add drag and drop functionality
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', draggedItem.innerHTML);
+            e.target.style.opacity = '0.5';
+        }
+
+        function handleDragEnd(e) {
+            e.target.style.opacity = '1';
+            taskList.querySelectorAll('li').forEach(item => {
+                item.classList.remove('over');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            e.target.classList.add('over');
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('over');
+        }
+
+        function handleDrop(e) {
+            e.stopPropagation();
+            if (draggedItem !== e.target) {
+                const allItems = Array.from(taskList.querySelectorAll('li'));
+                const fromIndex = allItems.indexOf(draggedItem);
+                const toIndex = allItems.indexOf(e.target);
+                
+                if (fromIndex < toIndex) {
+                    taskList.insertBefore(draggedItem, e.target.nextSibling);
+                } else {
+                    taskList.insertBefore(draggedItem, e.target);
+                }
+
+                // Update tasks array
+                const [reorderedItem] = tasks.splice(fromIndex, 1);
+                tasks.splice(toIndex, 0, reorderedItem);
+                saveTasks();
+            }
+            return false;
+        }
+
+        taskList.addEventListener('dragstart', handleDragStart);
+        taskList.addEventListener('dragend', handleDragEnd);
+        taskList.addEventListener('dragover', handleDragOver);
+        taskList.addEventListener('dragenter', handleDragEnter);
+        taskList.addEventListener('dragleave', handleDragLeave);
+        taskList.addEventListener('drop', handleDrop);
+
+        // Make list items draggable
+        function makeItemsDraggable() {
+            taskList.querySelectorAll('li').forEach(item => {
+                item.setAttribute('draggable', 'true');
+            });
+        }
+
+        // Call makeItemsDraggable after rendering tasks
+        const originalRenderTasks = renderTasks;
+        renderTasks = function() {
+            originalRenderTasks();
+            makeItemsDraggable();
+        };
+
+        renderAll();
+    </script>
+</body>
+</html>
